@@ -1,0 +1,225 @@
+<script src="/jquery-1.4.2.min.js"></script>
+<script src="/jquery.easing.1.3.js"></script>
+<script>
+var valid=new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+var boardx =new Array(0,<%=@board %>);
+var board =new Array(16);
+var sec=0;
+var min=0;
+
+function clock()
+{
+  $("#time").html(min+":"+sec);
+  go=setTimeout("clock()",1000)
+  sec++
+  if(sec==60)
+  {
+    sec=0
+    min++
+  }
+}
+
+function init()
+{
+
+  var top=5,left=5;
+
+  for(i=0;i<=12;i=i+4)
+  {
+    for(j=i+1;j<=i+4&&j<=15;j++)
+    {
+
+      tempDiv = document.createElement('div');
+      tempDiv.innerHTML = boardx[j];
+      tempDiv.className = "block";
+      tempDiv.style.top=""+top+"px";
+      tempDiv.style.left=""+left+"px";
+      if(boardx[j]%2==1)
+        tempDiv.style.backgroundImage="url(images/red.jpg)";
+      else tempDiv.style.backgroundImage="url(images/green.jpg)";
+      left+=55;
+      board[j]=tempDiv;
+      document.getElementById("board").appendChild( board[j] );
+
+    }
+    top+=55;
+    left=5;
+  }
+  board[16]=null;
+}
+
+function findBlock(x)
+{
+  var ret=0;
+  for(i=1;i<=16;i++)
+  {
+    if(board[i]!=null&&board[i].innerHTML==x)
+    {
+      ret=i;
+      break;
+    }
+  }
+  return ret;
+}
+
+function moveright(x)
+{
+  var ret=0;
+  if(x!=4&&x!=8&&x!=12&&x!=16)
+    if(board[x+1]==null)
+    {
+      ret=1;
+      board[x+1]=board[x];
+      board[x]=null;
+    }
+  return ret;
+}
+
+function moveleft(x)
+{
+
+  var ret=0;
+  if(x!=1&&x!=5&&x!=9&&x!=13)
+    if(board[x-1]==null)
+    {
+      ret=1;
+      board[x-1]=board[x];
+      board[x]=null;
+    }
+  return ret;
+}
+
+function movedown(x)
+{
+
+  var ret=0;
+  if(x!=13&&x!=14&&x!=15&&x!=16)
+    if(board[x+4]==null)
+    {
+      ret=1;
+      board[x+4]=board[x];
+      board[x]=null;
+    }
+  return ret;
+}
+
+function moveup(x)
+{
+
+  var ret=0;
+  if(x!=1&&x!=2&&x!=3&&x!=4)
+    if(board[x-4]==null)
+    {
+      ret=1;
+      board[x-4]=board[x];
+      board[x]=null;
+    }
+  return ret;
+}
+
+function is15()
+{
+  win=1;
+  for(i=1;i<=15;i++)
+    if(parseInt(board[i].innerHTML)!=i)
+    {
+      win=0;
+    }
+  if(win==1)
+  {
+    clearTimeout(go);
+    alert("15!");
+  }
+}
+
+
+
+function start()
+{
+  clock();
+  $(".block").click(function(){
+    var pos = findBlock(this.innerHTML);
+    var left = parseInt(this.style.left.replace("px",""));
+    var top = parseInt(this.style.top.replace("px",""));
+    if(moveright(pos))
+    {
+      left+=55;
+      $(this).animate({
+        left:(left+"px")
+      },1000,'easeOutBounce');
+      //this.style.left=left+"px";
+    }
+    else if(moveleft(pos))
+    {
+
+      left-=55;
+      $(this).animate({
+        left:(left+"px")
+      },1000,'easeOutBounce');
+      //this.style.left=left+"px";
+    }
+    else if(moveup(pos))
+    {
+      top-=55;
+      $(this).animate({
+        top:(top+"px")
+      },1000,'easeOutBounce');
+      //this.style.top=top+"px";
+    }
+    else if(movedown(pos))
+    {
+      top+=55;
+      $(this).animate({
+        top:(top+"px")
+      },1000,'easeOutBounce');
+      //this.style.top=top+"px";
+    }
+    is15();
+  });
+}
+
+function game()
+{
+  init();
+}
+
+$(function(){
+  game();
+  start();
+});
+
+</script>
+<style>
+  *
+  {
+  font-family:tahoma;
+  }
+  .block
+  {
+    width:50px;
+    height:36px;
+    height:50px\9;
+    text-align:center;
+    position:absolute;
+    padding-top:14px;
+  }
+
+  #board
+  {
+    width:225px;
+    height:225px;
+    width:227px\9;
+    height:227px\9;
+    border:#ccc 1px solid;
+    position:relative;
+    background-image:url('images/board.jpg');
+  }
+  #back
+  {
+    width:740px;
+    background:#ccc;
+  }
+</style>
+
+<div id="board"></div>
+<div id="time"></div>
